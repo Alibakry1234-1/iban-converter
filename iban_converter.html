@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ايبان الى حساب والعكس</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 5px;
+            width: 300px;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>ايبان الى حساب والعكس</h1>
+    
+    <div>
+        <select id="bankSelect">
+            <option value="">اختر البنك</option>
+            <option value="10">مصرف الراجحي</option>
+            <option value="20">البنك الأهلي السعودي</option>
+            <option value="40">بنك الرياض</option>
+            <option value="45">البنك السعودي للاستثمار</option>
+            <option value="50">البنك العربي الوطني</option>
+            <option value="55">بنك البلاد</option>
+            <option value="60">بنك الجزيرة</option>
+            <option value="65">البنك السعودي الفرنسي</option>
+            <option value="80">البنك الأول</option>
+            <option value="85">مصرف الإنماء</option>
+        </select>
+        <input type="text" id="accountInput" placeholder="أدخل رقم الحساب (12-18 رقم)">
+        <button onclick="accountToIban()">تحويل إلى IBAN</button>
+    </div>
+    
+    <div>
+        <input type="text" id="ibanInput" placeholder="أدخل رقم IBAN (SA يبدأ بـ)">
+        <button onclick="ibanToAccount()">تحويل إلى حساب</button>
+    </div>
+    
+    <div id="result"></div>
+    
+    <div class="footer">
+        مع تحيات المبرمج: علي بن عبدالله البكري
+    </div>
+
+    <script>
+        function accountToIban() {
+            const bankCode = document.getElementById('bankSelect').value;
+            const account = document.getElementById('accountInput').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            // التحقق من اختيار البنك
+            if (!bankCode) {
+                resultDiv.innerHTML = 'يرجى اختيار البنك أولاً';
+                return;
+            }
+            
+            // التحقق من صحة رقم الحساب
+            if (!/^\d{12,18}$/.test(account)) {
+                resultDiv.innerHTML = 'يرجى إدخال رقم حساب صحيح (12-18 رقم)';
+                return;
+            }
+
+            // كود البلد للسعودية
+            const countryCode = 'SA';
+            // حساب العميل مع أصفار بادئة إذا لزم الأمر
+            const accountNumber = account.padStart(18, '0');
+            // رقم التحقق (BBAN)
+            const bban = bankCode + accountNumber;
+            // حساب رقم التحقق
+            const checkDigits = calculateCheckDigits(countryCode, bban);
+            
+            const iban = countryCode + checkDigits + bban;
+            resultDiv.innerHTML = 'رقم IBAN: ' + iban;
+        }
+
+        function ibanToAccount() {
+            const iban = document.getElementById('ibanInput').value.trim().toUpperCase();
+            const resultDiv = document.getElementById('result');
+            
+            // التحقق من صحة IBAN
+            if (!/^SA\d{22}$/.test(iban)) {
+                resultDiv.innerHTML = 'يرجى إدخال IBAN صحيح يبدأ بـ SA متبوعاً بـ 22 رقم';
+                return;
+            }
+
+            // استخراج رقم الحساب (آخر 18 رقم بعد حذف كود البنك ورقم التحقق)
+            const accountNumber = iban.substring(6);
+            resultDiv.innerHTML = 'رقم الحساب: ' + accountNumber;
+        }
+
+        function calculateCheckDigits(countryCode, bban) {
+            // تحويل الحروف إلى أرقام (A=10, B=11, ..., Z=35)
+            const numericCountry = countryCode.replace(/[A-Z]/g, letter => 
+                (letter.charCodeAt(0) - 55).toString());
+            
+            // ترتيب الأرقام للحساب: BBAN + CountryCode + "00"
+            const numberToCheck = bban + numericCountry + '00';
+            
+            // حساب الموديولوس 97
+            let remainder = numberToCheck;
+            while (remainder.length > 9) {
+                remainder = (parseInt(remainder.substring(0, 9)) % 97) + remainder.substring(9);
+            }
+            remainder = parseInt(remainder) % 97;
+            
+            // حساب رقم التحقق
+            const checkDigits = (98 - remainder).toString().padStart(2, '0');
+            return checkDigits;
+        }
+    </script>
+</body>
+</html>
