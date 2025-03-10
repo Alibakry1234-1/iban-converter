@@ -76,7 +76,7 @@
 <body>
 
     <!-- شعار الريال السعودي الجديد -->
-    <img src="shaar-riyal.png" alt="شعار الريال السعودي الجديد" class="logo">
+    <img src="02F1F76E-0235-4F81-A6BF-D1D0328788D4.png" alt="شعار الريال السعودي الجديد" class="logo">
 
     <h1>تحويل بين رقم الحساب و IBAN</h1>
 
@@ -104,94 +104,6 @@
     <div class="footer">
         كل الحقوق محفوظة للمبرمج: <b>علي عبدالله بكري</b> © 2025
     </div>
-
-    <script>
-        const banks = [
-            { code: "10", name: "البنك الأهلي السعودي", accountLength: 14 },
-            { code: "20", name: "بنك الرياض", accountLength: 15 },
-            { code: "30", name: "البنك العربي الوطني", accountLength: 15 },
-            { code: "40", name: "البنك السعودي الأمريكي (سامبا)", accountLength: 14 },
-            { code: "45", name: "البنك السعودي البريطاني (ساب)", accountLength: 15 },
-            { code: "50", name: "البنك الأول", accountLength: 15 },
-            { code: "55", name: "البنك السعودي الفرنسي", accountLength: 15 },
-            { code: "60", name: "بنك الجزيرة", accountLength: 16 },
-            { code: "65", name: "البنك السعودي للاستثمار", accountLength: 14 },
-            { code: "70", name: "بنك البلاد", accountLength: 15 },
-            { code: "80", name: "مصرف الراجحي", accountLength: 18 },
-            { code: "05", name: "مصرف الإنماء", accountLength: 14 }
-        ];
-
-        const bankSelect = document.getElementById('bankSelect');
-        banks.forEach(bank => {
-            const option = document.createElement('option');
-            option.value = bank.code;
-            option.textContent = `${bank.name} (${bank.accountLength} رقمًا)`;
-            bankSelect.appendChild(option);
-        });
-
-        function accountToIban() {
-            const bankCode = document.getElementById('bankSelect').value;
-            const account = document.getElementById('accountInput').value.trim();
-            const resultDiv = document.getElementById('result');
-
-            if (!bankCode) {
-                resultDiv.innerHTML = '<span class="error">يرجى اختيار البنك أولاً</span>';
-                return;
-            }
-
-            const bank = banks.find(b => b.code === bankCode);
-            if (!/^\d+$/.test(account) || account.length !== bank.accountLength) {
-                resultDiv.innerHTML = `<span class="error">رقم الحساب يجب أن يكون ${bank.accountLength} رقمًا لـ ${bank.name}</span>`;
-                return;
-            }
-
-            const paddedAccount = account.padStart(18, '0');
-            const bban = bank.code + paddedAccount;
-            const countryCode = 'SA';
-            const checkDigits = "00"; // يتم الحساب بناءً على طريقة IBAN
-
-            const iban = countryCode + checkDigits + bban;
-            resultDiv.innerHTML = `رقم IBAN: <b>${iban}</b> <button class="copy-btn" onclick="copyToClipboard('${iban}')">نسخ</button>`;
-        }
-
-        function detectBankFromIban() {
-            const iban = document.getElementById('ibanInput').value.trim().toUpperCase();
-            if (iban.length < 6) return;
-
-            const bankCode = iban.substring(4, 6);
-            const bank = banks.find(b => b.code === bankCode);
-
-            if (bank) {
-                document.getElementById('bankSelect').value = bank.code;
-            }
-        }
-
-        function ibanToAccount() {
-            const iban = document.getElementById('ibanInput').value.trim().toUpperCase();
-            const resultDiv = document.getElementById('result');
-
-            if (!iban.startsWith('SA') || iban.length !== 24) {
-                resultDiv.innerHTML = '<span class="error">رقم IBAN غير صحيح</span>';
-                return;
-            }
-
-            const bankCode = iban.substring(4, 6);
-            const accountNumber = iban.substring(6).replace(/^0+/, '');
-
-            const bank = banks.find(b => b.code === bankCode);
-            if (!bank) {
-                resultDiv.innerHTML = '<span class="error">كود البنك غير معروف</span>';
-                return;
-            }
-
-            resultDiv.innerHTML = `رقم الحساب: <b>${accountNumber}</b> (بنك: ${bank.name}) <button class="copy-btn" onclick="copyToClipboard('${accountNumber}')">نسخ</button>`;
-        }
-
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text);
-            alert("تم النسخ!");
-        }
-    </script>
 
 </body>
 </html>
