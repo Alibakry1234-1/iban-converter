@@ -105,7 +105,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: color 0.3s;
-            font-size: 16px;
+            font-size: 24px; /* حجم الأيقونة */
         }
 
         .theme-switch:hover {
@@ -127,7 +127,7 @@
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Saudi_riyal_symbol.svg/1024px-Saudi_riyal_symbol.svg.png" alt="شعار الريال السعودي" class="logo">
 
     <!-- زر تبديل الوضع -->
-    <button class="theme-switch" id="themeSwitch" onclick="toggleTheme()"></button>
+    <button class="theme-switch" id="themeSwitch" onclick="toggleTheme()">🌓</button>
 
     <div class="container">
         <h2>تحويل الحساب ↔ الآيبان</h2>
@@ -181,11 +181,11 @@
             if (currentTheme === "dark") {
                 body.removeAttribute("data-theme");
                 localStorage.setItem("theme", "light");
-                themeSwitch.textContent = "الوضع الداكن";
+                themeSwitch.textContent = "🌓"; // أيقونة الوضع الداكن
             } else {
                 body.setAttribute("data-theme", "dark");
                 localStorage.setItem("theme", "dark");
-                themeSwitch.textContent = "الوضع الفاتح";
+                themeSwitch.textContent = "🌓"; // أيقونة الوضع الفاتح
             }
         }
 
@@ -196,9 +196,9 @@
 
             if (savedTheme === "dark") {
                 document.body.setAttribute("data-theme", "dark");
-                themeSwitch.textContent = "الوضع الفاتح";
+                themeSwitch.textContent = "🌓"; // أيقونة الوضع الفاتح
             } else {
-                themeSwitch.textContent = "الوضع الداكن";
+                themeSwitch.textContent = "🌓"; // أيقونة الوضع الداكن
             }
         }
 
