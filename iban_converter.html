@@ -16,6 +16,7 @@
             --output-color: #004080;
             --warning-color: #ff0000;
             --footer-color: #666666;
+            --riyal-symbol: url('https://upload.wikimedia.org/wikipedia/commons/9/98/Saudi_Riyal_Symbol.svg'); /* رمز الريال الأسود */
         }
 
         [data-theme="dark"] {
@@ -28,6 +29,7 @@
             --output-color: #4d94ff;
             --warning-color: #ff4d4d;
             --footer-color: #999999;
+            --riyal-symbol: url('https://upload.wikimedia.org/wikipedia/commons/9/98/Saudi_Riyal_Symbol_white.svg'); /* رمز الريال الأبيض */
         }
 
         body {
@@ -118,16 +120,20 @@
             margin-bottom: 20px;
             border-radius: 50%;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-image: var(--riyal-symbol);
+            background-size: cover;
+            background-position: center;
+            margin: 0 auto 20px auto; /* توسيط علامة الريال */
         }
     </style>
 </head>
 <body>
 
-    <!-- شعار الريال السعودي الجديد -->
-    <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Saudi_Riyal_Symbol.svg" alt="شعار الريال السعودي" class="logo">
-
     <!-- زر تبديل الوضع -->
     <button class="theme-switch" id="themeSwitch" onclick="toggleTheme()">🌓</button>
+
+    <!-- شعار الريال السعودي -->
+    <div class="logo"></div>
 
     <div class="container">
         <h2>تحويل الحساب ↔ الآيبان</h2>
