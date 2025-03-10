@@ -97,12 +97,12 @@
         .theme-switch {
             position: fixed;
             top: 20px;
-            left: 20px;
+            right: 20px;
             background-color: var(--primary-color);
             color: white;
             border: none;
             padding: 10px;
-            border-radius: 50%;
+            border-radius: 5px;
             cursor: pointer;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s;
@@ -111,11 +111,22 @@
         .theme-switch:hover {
             background-color: var(--primary-hover-color);
         }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
 
-    <button class="theme-switch" onclick="toggleTheme()">🌓</button>
+    <!-- شعار الريال السعودي الجديد -->
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Saudi_riyal_symbol.svg/1024px-Saudi_riyal_symbol.svg.png" alt="شعار الريال السعودي" class="logo">
+
+    <button class="theme-switch" onclick="toggleTheme()">🌓 تبديل الوضع</button>
 
     <div class="container">
         <h2>تحويل الحساب ↔ الآيبان</h2>
@@ -156,7 +167,7 @@
         <button id="copyButton" style="display: none;" onclick="copyOutput()">نسخ</button>
 
         <p class="warning">⚠️ الرجاء التأكد من صحة البيانات قبل تنفيذ أي تحويل.</p>
-        <p class="footer">جميع الحقوق محفوظة للمبرمج: علي عبدالله بكري</p>
+        <p class="footer">© 2025 جميع الحقوق محفوظة | تم التطوير بواسطة علي عبدالله بكري</p>
     </div>
 
     <script>
@@ -242,7 +253,7 @@
 
                 try {
                     let iban = generateIBAN(bankCode, accountNumber);
-                    output.innerHTML = "✅ رقم الآيبان: " + iban;
+                    output.innerHTML = `✅ رقم الآيبان (24 حرفًا): <strong>${iban}</strong>`;
                     output.style.color = "var(--output-color)";
                     copyButton.style.display = "inline-block";
                 } catch (error) {
@@ -264,7 +275,7 @@
                 let bankCode = ibanNumber.substring(4, 6);
                 let accountNumber = ibanNumber.substring(6);
 
-                output.innerHTML = `✅ البنك: ${getBankName(bankCode)}<br>رقم الحساب: ${accountNumber}`;
+                output.innerHTML = `✅ البنك: <strong>${getBankName(bankCode)}</strong><br>رقم الحساب (14 رقمًا): <strong>${accountNumber}</strong>`;
                 output.style.color = "var(--output-color)";
                 copyButton.style.display = "inline-block";
             }
@@ -272,7 +283,7 @@
 
         // نسخ النتيجة
         function copyOutput() {
-            let text = document.getElementById("output").innerText.replace("✅ ", "");
+            let text = document.getElementById("output").innerText.replace("✅ ", "").replace(/رقم الآيبان \(24 حرفًا\):|رقم الحساب \(14 رقمًا\):|البنك:/g, "").trim();
             navigator.clipboard.writeText(text).then(() => {
                 alert("تم النسخ!");
             });
