@@ -5,15 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تحويل الحساب ↔ الآيبان</title>
     <style>
+        /* التصميم العام */
+        :root {
+            --background-color: #ffffff;
+            --text-color: #333333;
+            --primary-color: #008000;
+            --primary-hover-color: #005700;
+            --container-bg: #f5f5f5;
+            --input-border: #cccccc;
+            --output-color: #004080;
+            --warning-color: #ff0000;
+            --footer-color: #666666;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #1e1e1e;
+            --text-color: #f5f5f5;
+            --primary-color: #00a000;
+            --primary-hover-color: #007000;
+            --container-bg: #2d2d2d;
+            --input-border: #555555;
+            --output-color: #4d94ff;
+            --warning-color: #ff4d4d;
+            --footer-color: #999999;
+        }
+
         body {
             font-family: Arial, sans-serif;
             direction: rtl;
             text-align: center;
-            background-color: #f5f5f5;
+            background-color: var(--background-color);
+            color: var(--text-color);
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
+
         .container {
-            background: white;
+            background: var(--container-bg);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -21,41 +49,73 @@
             text-align: center;
             width: 90%;
             max-width: 450px;
+            transition: background-color 0.3s;
         }
+
         input, select, button {
             font-size: 16px;
             padding: 10px;
             margin: 10px 0;
             width: 100%;
             border-radius: 5px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--input-border);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
+
         button {
-            background-color: #008000;
+            background-color: var(--primary-color);
             color: white;
             cursor: pointer;
+            border: none;
         }
+
         button:hover {
-            background-color: #005700;
+            background-color: var(--primary-hover-color);
         }
+
         .output {
             font-size: 18px;
             font-weight: bold;
-            color: #004080;
+            color: var(--output-color);
+            margin-top: 15px;
         }
+
         .warning {
-            color: red;
+            color: var(--warning-color);
             font-size: 14px;
             margin-top: 10px;
         }
+
         .footer {
             font-size: 12px;
             margin-top: 15px;
-            color: gray;
+            color: var(--footer-color);
+        }
+
+        .theme-switch {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .theme-switch:hover {
+            background-color: var(--primary-hover-color);
         }
     </style>
 </head>
 <body>
+
+    <button class="theme-switch" onclick="toggleTheme()">🌓</button>
 
     <div class="container">
         <h2>تحويل الحساب ↔ الآيبان</h2>
@@ -100,61 +160,60 @@
     </div>
 
     <script>
+        // تبديل الوضع الداكن والفاتح
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute("data-theme");
+            if (currentTheme === "dark") {
+                body.removeAttribute("data-theme");
+                localStorage.setItem("theme", "light");
+            } else {
+                body.setAttribute("data-theme", "dark");
+                localStorage.setItem("theme", "dark");
+            }
+        }
+
+        // تحميل الوضع المحفوظ
+        function loadTheme() {
+            const savedTheme = localStorage.getItem("theme");
+            if (savedTheme === "dark") {
+                document.body.setAttribute("data-theme", "dark");
+            }
+        }
+
+        // تحميل الوضع عند فتح الصفحة
+        loadTheme();
+
+        // تبديل الحقول بناءً على نوع التحويل
         function toggleFields() {
             let conversionType = document.getElementById("conversionType").value;
             document.getElementById("accountToIBAN").style.display = (conversionType === "toIBAN") ? "block" : "none";
             document.getElementById("ibanToAccount").style.display = (conversionType === "toAccount") ? "block" : "none";
         }
 
-        function convert() {
-            let conversionType = document.getElementById("conversionType").value;
-            let output = document.getElementById("output");
-            let copyButton = document.getElementById("copyButton");
-
-            if (conversionType === "toIBAN") {
-                let bankCode = document.getElementById("bankCode").value;
-                let accountNumber = document.getElementById("accountNumber").value.trim();
-
-                if (accountNumber.length !== 14 || isNaN(accountNumber)) {
-                    output.innerHTML = "❌ رقم الحساب غير صالح. يجب أن يكون 14 رقمًا.";
-                    output.style.color = "red";
-                    copyButton.style.display = "none";
-                    return;
-                }
-
-                let countryCode = "SA";
-                let checkDigits = "00"; // سيتم حسابه لاحقًا
-                let iban = countryCode + checkDigits + bankCode + accountNumber;
-
-                let numericIBAN = iban.replace(/[A-Z]/g, match => match.charCodeAt(0) - 55);
-                let mod97 = BigInt(numericIBAN) % 97n;
-                let checkDigitsFinal = (98n - mod97).toString().padStart(2, '0');
-
-                let finalIBAN = countryCode + checkDigitsFinal + bankCode + accountNumber;
-
-                output.innerHTML = "✅ رقم الآيبان: " + finalIBAN;
-                output.style.color = "#004080";
-                copyButton.style.display = "inline-block";
-            } 
-            else if (conversionType === "toAccount") {
-                let ibanNumber = document.getElementById("ibanNumber").value.trim();
-
-                if (!ibanNumber.startsWith("SA") || ibanNumber.length !== 24 || isNaN(ibanNumber.substring(2))) {
-                    output.innerHTML = "❌ رقم الآيبان غير صالح.";
-                    output.style.color = "red";
-                    copyButton.style.display = "none";
-                    return;
-                }
-
-                let bankCode = ibanNumber.substring(4, 6);
-                let accountNumber = ibanNumber.substring(6);
-
-                output.innerHTML = `✅ البنك: ${getBankName(bankCode)}<br>رقم الحساب: ${accountNumber}`;
-                output.style.color = "#004080";
-                copyButton.style.display = "inline-block";
-            }
+        // حساب رقم التحقق
+        function calculateCheckDigits(iban) {
+            let rearranged = iban.substring(4) + iban.substring(0, 4);
+            let numericIBAN = rearranged.replace(/[A-Z]/g, match => match.charCodeAt(0) - 55);
+            let mod97 = BigInt(numericIBAN) % 97n;
+            let checkDigits = (98n - mod97).toString().padStart(2, '0');
+            return checkDigits;
         }
 
+        // إنشاء رقم الآيبان
+        function generateIBAN(bankCode, accountNumber) {
+            if (accountNumber.length !== 14 || isNaN(accountNumber)) {
+                throw new Error("رقم الحساب غير صالح. يجب أن يكون 14 رقمًا.");
+            }
+            let countryCode = "SA";
+            let checkDigits = "00";
+            let ibanWithoutCheckDigits = countryCode + checkDigits + bankCode + accountNumber;
+            let checkDigitsFinal = calculateCheckDigits(ibanWithoutCheckDigits);
+            let finalIBAN = countryCode + checkDigitsFinal + bankCode + accountNumber;
+            return finalIBAN;
+        }
+
+        // الحصول على اسم البنك
         function getBankName(code) {
             let banks = {
                 "80": "البنك الأهلي السعودي",
@@ -171,6 +230,47 @@
             return banks[code] || "بنك غير معروف";
         }
 
+        // تنفيذ التحويل
+        function convert() {
+            let conversionType = document.getElementById("conversionType").value;
+            let output = document.getElementById("output");
+            let copyButton = document.getElementById("copyButton");
+
+            if (conversionType === "toIBAN") {
+                let bankCode = document.getElementById("bankCode").value;
+                let accountNumber = document.getElementById("accountNumber").value.trim();
+
+                try {
+                    let iban = generateIBAN(bankCode, accountNumber);
+                    output.innerHTML = "✅ رقم الآيبان: " + iban;
+                    output.style.color = "var(--output-color)";
+                    copyButton.style.display = "inline-block";
+                } catch (error) {
+                    output.innerHTML = "❌ " + error.message;
+                    output.style.color = "var(--warning-color)";
+                    copyButton.style.display = "none";
+                }
+            } 
+            else if (conversionType === "toAccount") {
+                let ibanNumber = document.getElementById("ibanNumber").value.trim();
+
+                if (!ibanNumber.startsWith("SA") || ibanNumber.length !== 24 || isNaN(ibanNumber.substring(2))) {
+                    output.innerHTML = "❌ رقم الآيبان غير صالح.";
+                    output.style.color = "var(--warning-color)";
+                    copyButton.style.display = "none";
+                    return;
+                }
+
+                let bankCode = ibanNumber.substring(4, 6);
+                let accountNumber = ibanNumber.substring(6);
+
+                output.innerHTML = `✅ البنك: ${getBankName(bankCode)}<br>رقم الحساب: ${accountNumber}`;
+                output.style.color = "var(--output-color)";
+                copyButton.style.display = "inline-block";
+            }
+        }
+
+        // نسخ النتيجة
         function copyOutput() {
             let text = document.getElementById("output").innerText.replace("✅ ", "");
             navigator.clipboard.writeText(text).then(() => {
