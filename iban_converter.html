@@ -98,18 +98,17 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background-color: var(--primary-color);
-            color: white;
+            background-color: transparent;
+            color: var(--text-color);
             border: none;
             padding: 10px;
             border-radius: 5px;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s;
+            transition: color 0.3s;
         }
 
         .theme-switch:hover {
-            background-color: var(--primary-hover-color);
+            color: var(--primary-color);
         }
 
         .logo {
@@ -126,7 +125,7 @@
     <!-- شعار الريال السعودي الجديد -->
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Saudi_riyal_symbol.svg/1024px-Saudi_riyal_symbol.svg.png" alt="شعار الريال السعودي" class="logo">
 
-    <button class="theme-switch" onclick="toggleTheme()">🌓 تبديل الوضع</button>
+    <button class="theme-switch" id="themeSwitch" onclick="toggleTheme()"></button>
 
     <div class="container">
         <h2>تحويل الحساب ↔ الآيبان</h2>
@@ -175,20 +174,29 @@
         function toggleTheme() {
             const body = document.body;
             const currentTheme = body.getAttribute("data-theme");
+            const themeSwitch = document.getElementById("themeSwitch");
+
             if (currentTheme === "dark") {
                 body.removeAttribute("data-theme");
                 localStorage.setItem("theme", "light");
+                themeSwitch.textContent = "الوضع الداكن";
             } else {
                 body.setAttribute("data-theme", "dark");
                 localStorage.setItem("theme", "dark");
+                themeSwitch.textContent = "الوضع الفاتح";
             }
         }
 
         // تحميل الوضع المحفوظ
         function loadTheme() {
             const savedTheme = localStorage.getItem("theme");
+            const themeSwitch = document.getElementById("themeSwitch");
+
             if (savedTheme === "dark") {
                 document.body.setAttribute("data-theme", "dark");
+                themeSwitch.textContent = "الوضع الفاتح";
+            } else {
+                themeSwitch.textContent = "الوضع الداكن";
             }
         }
 
