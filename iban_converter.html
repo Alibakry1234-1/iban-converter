@@ -45,7 +45,6 @@
             padding: 10px;
             font-weight: bold;
             color: #27ae60;
-            position: relative;
         }
         .error {
             color: #e74c3c;
@@ -55,6 +54,7 @@
             padding: 5px 10px;
             font-size: 14px;
             background-color: #2ecc71;
+            cursor: pointer;
         }
         .copy-btn:hover {
             background-color: #27ae60;
@@ -84,11 +84,11 @@
                 <option value="0500:14">مصرف الإنماء (14 رقمًا)</option>
                 <option value="0600:15">بنك الخليج الدولي (15 رقمًا)</option>
             </select>
-            <input type="text" id="accountInput" placeholder="أدخل رقم الحساب">
+            <input type="text" id="accountInput" placeholder="أدخل رقم الحساب" oninput="validateNumericInput(this)">
             <button onclick="accountToIban()">تحويل إلى IBAN</button>
         </div>
         <div>
-            <input type="text" id="ibanInput" placeholder="أدخل رقم IBAN (يبدأ بـ SA)">
+            <input type="text" id="ibanInput" placeholder="أدخل رقم IBAN (يبدأ بـ SA)" oninput="detectBankFromIban()">
             <button onclick="ibanToAccount()">تحويل إلى حساب</button>
         </div>
         <div id="result"></div>
@@ -98,20 +98,36 @@
     </div>
 
     <script>
-        // قاموس البنوك مع الكود، طول الحساب، وعدد الأصفار البادئة
         const banks = {
-            "0020_14": { name: "البنك الأهلي السعودي", code: "0020", accountLength: 14, paddingZeros: 2 },
-            "8000_18": { name: "مصرف الراجحي", code: "8000", accountLength: 18, paddingZeros: 0 },
-            "0010_15": { name: "بنك الرياض", code: "0010", accountLength: 15, paddingZeros: 1 },
-            "0020_12": { name: "البنك السعودي الفرنسي", code: "0020", accountLength: 12, paddingZeros: 4 },
-            "0040_15": { name: "البنك العربي الوطني", code: "0040", accountLength: 15, paddingZeros: 1 },
-            "0070_15": { name: "بنك البلاد", code: "0070", accountLength: 15, paddingZeros: 1 },
-            "0030_16": { name: "بنك الجزيرة", code: "0030", accountLength: 16, paddingZeros: 0 },
-            "0050_14": { name: "البنك السعودي للاستثمار", code: "0050", accountLength: 14, paddingZeros: 2 },
-            "0100_12": { name: "البنك السعودي البريطاني", code: "0100", accountLength: 12, paddingZeros: 4 },
-            "0500_14": { name: "مصرف الإنماء", code: "0500", accountLength: 14, paddingZeros: 2 },
-            "0600_15": { name: "بنك الخليج الدولي", code: "0600", accountLength: 15, paddingZeros: 1 }
+            "0020_14": "البنك الأهلي السعودي",
+            "8000_18": "مصرف الراجحي",
+            "0010_15": "بنك الرياض",
+            "0020_12": "البنك السعودي الفرنسي",
+            "0040_15": "البنك العربي الوطني",
+            "0070_15": "بنك البلاد",
+            "0030_16": "بنك الجزيرة",
+            "0050_14": "البنك السعودي للاستثمار",
+            "0100_12": "البنك السعودي البريطاني",
+            "0500_14": "مصرف الإنماء",
+            "0600_15": "بنك الخليج الدولي"
         };
+
+        function detectBankFromIban() {
+            const iban = document.getElementById('ibanInput').value.trim().toUpperCase();
+            if (/^SA\d{22}$/.test(iban)) {
+                const bankCode = iban.substring(4, 8);
+                for (const key in banks) {
+                    if (key.startsWith(bankCode)) {
+                        document.getElementById('bankSelect').value = key.replace("_", ":");
+                        break;
+                    }
+                }
+            }
+        }
+
+        function validateNumericInput(input) {
+            input.value = input.value.replace(/\D/g, '');
+        }
 
         function accountToIban() {
             const bankSelect = document.getElementById('bankSelect').value;
@@ -124,23 +140,15 @@
             }
 
             const [bankCode, accountLength] = bankSelect.split(':');
-            const bankKey = `${bankCode}_${accountLength}`;
-            const bank = banks[bankKey];
-
-            if (!/^\d+$/.test(account) || account.length !== bank.accountLength) {
-                resultDiv.innerHTML = `<span class="error">رقم الحساب يجب أن يكون ${bank.accountLength} أرقام لـ ${bank.name}</span>`;
+            if (account.length !== parseInt(accountLength)) {
+                resultDiv.innerHTML = `<span class="error">رقم الحساب يجب أن يكون ${accountLength} أرقام</span>`;
                 return;
             }
 
-            // تعبئة الحساب بالأصفار ليصبح 16 رقمًا
             const paddedAccount = account.padStart(16, '0');
-            const bban = bank.code + paddedAccount;
+            const bban = bankCode + paddedAccount;
+            const iban = `SA${98 - (parseInt(bban) % 97)}${bban}`;
 
-            // حساب أرقام التحقق
-            const countryCode = 'SA';
-            const checkDigits = calculateCheckDigits(countryCode, bban);
-
-            const iban = countryCode + checkDigits + bban;
             resultDiv.innerHTML = `رقم IBAN: ${iban} <button class="copy-btn" onclick="copyToClipboard('${iban}')">نسخ</button>`;
         }
 
@@ -149,73 +157,19 @@
             const resultDiv = document.getElementById('result');
 
             if (!/^SA\d{22}$/.test(iban)) {
-                resultDiv.innerHTML = '<span class="error">يرجى إدخال IBAN صحيح يبدأ بـ SA متبوعًا بـ 22 رقمًا</span>';
-                return;
-            }
-
-            if (!isValidIban(iban)) {
-                resultDiv.innerHTML = '<span class="error">رقم IBAN غير صحيح (فشل في التحقق من Mod 97-10)</span>';
+                resultDiv.innerHTML = '<span class="error">رقم IBAN غير صالح</span>';
                 return;
             }
 
             const bankCode = iban.substring(4, 8);
-            const accountNumberFull = iban.substring(8);
-            let bank = null;
+            const accountNumber = iban.substring(8).replace(/^0+/, '');
 
-            // البحث عن البنك بناءً على الكود وطول الحساب
-            for (const key in banks) {
-                if (banks[key].code === bankCode) {
-                    const accountLength = accountNumberFull.replace(/^0+/, '').length;
-                    if (accountLength === banks[key].accountLength) {
-                        bank = banks[key];
-                        break;
-                    }
-                }
-            }
-
-            if (!bank) {
-                resultDiv.innerHTML = '<span class="error">كود البنك أو طول الحساب غير متطابق مع أي بنك معروف</span>';
-                return;
-            }
-
-            const accountNumber = accountNumberFull.replace(/^0+/, '');
-            resultDiv.innerHTML = `رقم الحساب: ${accountNumber}<br>البنك: ${bank.name} <button class="copy-btn" onclick="copyToClipboard('${accountNumber}')">نسخ</button>`;
-        }
-
-        function calculateCheckDigits(countryCode, bban) {
-            const numericCountry = countryCode.replace(/[A-Z]/g, letter => 
-                (letter.charCodeAt(0) - 55).toString());
-            const numberToCheck = bban + numericCountry + '00';
-
-            let remainder = numberToCheck;
-            while (remainder.length > 2) {
-                const chunk = remainder.substring(0, 9);
-                remainder = (parseInt(chunk) % 97) + remainder.substring(9);
-            }
-            remainder = parseInt(remainder) % 97;
-            return (98 - remainder).toString().padStart(2, '0');
-        }
-
-        function isValidIban(iban) {
-            const rearranged = iban.substring(4) + iban.substring(0, 4);
-            const numericIban = rearranged.replace(/[A-Z]/g, letter => 
-                (letter.charCodeAt(0) - 55).toString());
-
-            let remainder = numericIban;
-            while (remainder.length > 2) {
-                const chunk = remainder.substring(0, 9);
-                remainder = (parseInt(chunk) % 97) + remainder.substring(9);
-            }
-            return parseInt(remainder) % 97 === 1;
+            resultDiv.innerHTML = `رقم الحساب: ${accountNumber} <button class="copy-btn" onclick="copyToClipboard('${accountNumber}')">نسخ</button>`;
         }
 
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('تم نسخ النص إلى الحافظة!');
-            }, () => {
-                alert('فشل النسخ، حاول يدويًا');
-            });
+            navigator.clipboard.writeText(text).then(() => alert('تم النسخ!'));
         }
     </script>
 </body>
-</html>>
+</html>
