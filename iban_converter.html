@@ -62,16 +62,17 @@
         <div>
             <select id="bankSelect">
                 <option value="">اختر البنك</option>
-                <option value="10:10">مصرف الراجحي (10 أرقام)</option>
-                <option value="20:18">البنك الأهلي السعودي (18 رقمًا)</option>
-                <option value="40:15">بنك الرياض (15 رقمًا)</option>
-                <option value="45:18">البنك السعودي للاستثمار (18 رقمًا)</option>
-                <option value="50:14">البنك العربي الوطني (14 رقمًا)</option>
-                <option value="55:15">بنك البلاد (15 رقمًا)</option>
-                <option value="60:14">بنك الجزيرة (14 رقمًا)</option>
-                <option value="65:15">البنك السعودي الفرنسي (15 رقمًا)</option>
-                <option value="80:18">البنك الأول (18 رقمًا)</option>
-                <option value="85:15">مصرف الإنماء (15 رقمًا)</option>
+                <option value="0020:14">البنك الأهلي السعودي (14 رقمًا)</option>
+                <option value="8000:18">مصرف الراجحي (18 رقمًا)</option>
+                <option value="0010:15">بنك الرياض (15 رقمًا)</option>
+                <option value="0020:12">البنك السعودي الفرنسي (12 رقمًا)</option>
+                <option value="0040:15">البنك العربي الوطني (15 رقمًا)</option>
+                <option value="0070:15">بنك البلاد (15 رقمًا)</option>
+                <option value="0030:16">بنك الجزيرة (16 رقمًا)</option>
+                <option value="0050:14">البنك السعودي للاستثمار (14 رقمًا)</option>
+                <option value="0100:12">البنك السعودي البريطاني (12 رقمًا)</option>
+                <option value="0500:14">مصرف الإنماء (14 رقمًا)</option>
+                <option value="0600:15">بنك الخليج الدولي (15 رقمًا)</option>
             </select>
             <input type="text" id="accountInput" placeholder="أدخل رقم الحساب">
             <button onclick="accountToIban()">تحويل إلى IBAN</button>
@@ -83,22 +84,23 @@
         <div id="result"></div>
     </div>
     <div class="footer">
-        مع تحيات المبرمج: علي عبدالله البكري
+        مع تحيات المبرمج: علي بن عبدالله البكري
     </div>
 
     <script>
-        // قاموس البنوك مع أكوادها وعدد أرقام الحساب المتوقعة
+        // قاموس البنوك مع أكوادها، أطوال الحسابات، وعدد الأصفار البادئة
         const banks = {
-            "10": { name: "مصرف الراجحي", accountLength: 10 },
-            "20": { name: "البنك الأهلي السعودي", accountLength: 18 },
-            "40": { name: "بنك الرياض", accountLength: 15 },
-            "45": { name: "البنك السعودي للاستثمار", accountLength: 18 },
-            "50": { name: "البنك العربي الوطني", accountLength: 14 },
-            "55": { name: "بنك البلاد", accountLength: 15 },
-            "60": { name: "بنك الجزيرة", accountLength: 14 },
-            "65": { name: "البنك السعودي الفرنسي", accountLength: 15 },
-            "80": { name: "البنك الأول", accountLength: 18 },
-            "85": { name: "مصرف الإنماء", accountLength: 15 }
+            "0020": { name: "البنك الأهلي السعودي", accountLength: 14, paddingZeros: 2 },
+            "8000": { name: "مصرف الراجحي", accountLength: 18, paddingZeros: 0 },
+            "0010": { name: "بنك الرياض", accountLength: 15, paddingZeros: 1 },
+            "0020_fransi": { name: "البنك السعودي الفرنسي", accountLength: 12, paddingZeros: 4, code: "0020" },
+            "0040": { name: "البنك العربي الوطني", accountLength: 15, paddingZeros: 1 },
+            "0070": { name: "بنك البلاد", accountLength: 15, paddingZeros: 1 },
+            "0030": { name: "بنك الجزيرة", accountLength: 16, paddingZeros: 0 },
+            "0050": { name: "البنك السعودي للاستثمار", accountLength: 14, paddingZeros: 2 },
+            "0100": { name: "البنك السعودي البريطاني", accountLength: 12, paddingZeros: 4 },
+            "0500": { name: "مصرف الإنماء", accountLength: 14, paddingZeros: 2 },
+            "0600": { name: "بنك الخليج الدولي", accountLength: 15, paddingZeros: 1 }
         };
 
         function accountToIban() {
@@ -106,7 +108,6 @@
             const account = document.getElementById('accountInput').value.trim();
             const resultDiv = document.getElementById('result');
 
-            // التحقق من اختيار البنك
             if (!bankSelect) {
                 resultDiv.innerHTML = '<span class="error">يرجى اختيار البنك أولاً</span>';
                 return;
@@ -114,15 +115,17 @@
 
             const [bankCode, expectedLength] = bankSelect.split(':');
             const accountLength = parseInt(expectedLength);
+            const bankKey = bankCode === "0020" && accountLength === 12 ? "0020_fransi" : bankCode;
+            const bank = banks[bankKey];
 
-            // التحقق من طول رقم الحساب بناءً على البنك
+            // التحقق من طول رقم الحساب
             if (!/^\d+$/.test(account) || account.length !== accountLength) {
-                resultDiv.innerHTML = `<span class="error">رقم الحساب يجب أن يكون ${accountLength} أرقام لـ ${banks[bankCode].name}</span>`;
+                resultDiv.innerHTML = `<span class="error">رقم الحساب يجب أن يكون ${accountLength} أرقام لـ ${bank.name}</span>`;
                 return;
             }
 
-            // إنشاء BBAN: كود البنك + أصفار إضافية + رقم الحساب ليصبح الطول 20
-            const paddedAccount = account.padStart(18, '0');
+            // تعبئة الأصفار البادئة لجعل الحساب 16 رقمًا
+            const paddedAccount = account.padStart(16 - bank.paddingZeros, '0') + '0'.repeat(bank.paddingZeros);
             const bban = bankCode + paddedAccount;
 
             // حساب أرقام التحقق
@@ -143,51 +146,53 @@
                 return;
             }
 
-            // التحقق من صحة IBAN باستخدام Mod 97-10
+            // التحقق من صحة IBAN
             if (!isValidIban(iban)) {
                 resultDiv.innerHTML = '<span class="error">رقم IBAN غير صحيح (فشل في التحقق من Mod 97-10)</span>';
                 return;
             }
 
             // استخراج كود البنك ورقم الحساب
-            const bankCode = iban.substring(4, 6);
-            const accountNumber = iban.substring(6).replace(/^0+/, ''); // إزالة الأصفار البادئة
+            const bankCode = iban.substring(4, 8);
+            const accountNumberFull = iban.substring(8);
+            let bankKey = bankCode;
+            let bank = banks[bankKey];
 
-            // التحقق من وجود البنك في القاموس
-            if (!banks[bankCode]) {
+            // التمييز بين البنك الأهلي والفرنسي (نفس الكود 0020)
+            if (bankCode === "0020") {
+                const accountLength = accountNumberFull.replace(/^0+/, '').length;
+                bankKey = accountLength === 12 ? "0020_fransi" : "0020";
+                bank = banks[bankKey];
+            }
+
+            if (!bank) {
                 resultDiv.innerHTML = '<span class="error">كود البنك غير معروف</span>';
                 return;
             }
 
-            resultDiv.innerHTML = `رقم الحساب: ${accountNumber}<br>البنك: ${banks[bankCode].name}`;
+            // إزالة الأصفار البادئة من رقم الحساب
+            const accountNumber = accountNumberFull.replace(/^0+/, '');
+            resultDiv.innerHTML = `رقم الحساب: ${accountNumber}<br>البنك: ${bank.name}`;
         }
 
         function calculateCheckDigits(countryCode, bban) {
-            // تحويل الحروف إلى أرقام (A=10, ..., Z=35)
             const numericCountry = countryCode.replace(/[A-Z]/g, letter => 
                 (letter.charCodeAt(0) - 55).toString());
-            
-            // ترتيب الأرقام: BBAN + CountryCode + "00"
             const numberToCheck = bban + numericCountry + '00';
             
-            // حساب Mod 97-10
             let remainder = numberToCheck;
             while (remainder.length > 9) {
                 remainder = (parseInt(remainder.substring(0, 9)) % 97) + remainder.substring(9);
             }
             remainder = parseInt(remainder) % 97;
-            
-            // أرقام التحقق
             return (98 - remainder).toString().padStart(2, '0');
         }
 
         function isValidIban(iban) {
-            // إعادة ترتيب IBAN: الأرقام الأولية + كود البلد + أرقام التحقق
             const rearranged = iban.substring(4) + iban.substring(0, 4);
             const numericIban = rearranged.replace(/[A-Z]/g, letter => 
                 (letter.charCodeAt(0) - 55).toString());
 
-            // حساب Mod 97-10
             let remainder = numericIban;
             while (remainder.length > 9) {
                 remainder = (parseInt(remainder.substring(0, 9)) % 97) + remainder.substring(9);
