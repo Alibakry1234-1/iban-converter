@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="محول الحساب البنكي السعودي والآيبان - أداة لتحويل أرقام الحسابات البنكية إلى آيبان والعكس">
     <title>تحويل الحساب ↔ الآيبان</title>
     <style>
         /* التصميم العام */
@@ -16,54 +17,89 @@
             --output-color: #004080;
             --warning-color: #ff0000;
             --footer-color: #666666;
-            --riyal-symbol: url('https://upload.wikimedia.org/wikipedia/commons/9/98/Saudi_Riyal_Symbol.svg'); /* رمز الريال الأسود */
+            --logo-bg: transparent;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
         }
 
         [data-theme="dark"] {
-            --background-color: #1e1e1e;
+            --background-color: #121212;
             --text-color: #f5f5f5;
             --primary-color: #00a000;
             --primary-hover-color: #007000;
-            --container-bg: #2d2d2d;
+            --container-bg: #1e1e1e;
             --input-border: #555555;
             --output-color: #4d94ff;
             --warning-color: #ff4d4d;
             --footer-color: #999999;
-            --riyal-symbol: url('https://upload.wikimedia.org/wikipedia/commons/9/98/Saudi_Riyal_Symbol_white.svg'); /* رمز الريال الأبيض */
+            --logo-bg: transparent;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            direction: rtl;
+            font-family: Arial, Tahoma, sans-serif;
             text-align: center;
             background-color: var(--background-color);
             color: var(--text-color);
             padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .container {
             background: var(--container-bg);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-            text-align: center;
-            width: 90%;
-            max-width: 450px;
-            transition: background-color 0.3s;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            width: 92%;
+            max-width: 480px;
+            transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        label {
+            display: block;
+            text-align: right;
+            margin-bottom: 6px;
+            font-weight: bold;
         }
 
         input, select, button {
             font-size: 16px;
-            padding: 10px;
-            margin: 10px 0;
+            padding: 12px;
+            margin-bottom: 16px;
             width: 100%;
-            border-radius: 5px;
+            border-radius: 6px;
             border: 1px solid var(--input-border);
             background-color: var(--background-color);
             color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            transition: background-color var(--transition-speed), 
+                      color var(--transition-speed), 
+                      border-color var(--transition-speed);
+        }
+
+        select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+            background-repeat: no-repeat;
+            background-position: left 12px center;
+            background-size: 16px;
+            padding-left: 35px;
         }
 
         button {
@@ -71,28 +107,54 @@
             color: white;
             cursor: pointer;
             border: none;
+            font-weight: bold;
+            transition: background-color 0.2s;
         }
 
         button:hover {
             background-color: var(--primary-hover-color);
         }
 
+        button:active {
+            transform: scale(0.98);
+        }
+
         .output {
             font-size: 18px;
             font-weight: bold;
             color: var(--output-color);
-            margin-top: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.03);
+            border-radius: 6px;
+            word-break: break-word;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        [data-theme="dark"] .output {
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .warning {
             color: var(--warning-color);
             font-size: 14px;
-            margin-top: 10px;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: rgba(255, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] .warning {
+            background-color: rgba(255, 0, 0, 0.1);
         }
 
         .footer {
-            font-size: 12px;
-            margin-top: 15px;
+            font-size: 13px;
+            margin-top: 20px;
             color: var(--footer-color);
         }
 
@@ -103,37 +165,200 @@
             background-color: transparent;
             color: var(--text-color);
             border: none;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 8px;
+            border-radius: 50%;
             cursor: pointer;
-            transition: color 0.3s;
-            font-size: 24px; /* حجم الأيقونة */
+            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--card-shadow);
+            background-color: var(--container-bg);
+            z-index: 100;
         }
 
         .theme-switch:hover {
             color: var(--primary-color);
         }
 
+        /* تنسيق شعار الريال السعودي */
+        .logo-container {
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+
         .logo {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-image: var(--riyal-symbol);
-            background-size: cover;
-            background-position: center;
-            margin: 0 auto 20px auto; /* توسيط علامة الريال */
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            position: relative;
+            background-color: var(--logo-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        
+        .logo img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+            transition: opacity 0.3s;
+        }
+        
+        /* رمز الريال النصي الاحتياطي */
+        .fallback-logo {
+            font-size: 80px;
+            font-weight: bold;
+            color: var(--primary-color);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+        
+        .logo-img-error .fallback-logo {
+            opacity: 1;
+        }
+        
+        .logo-img-error img {
+            opacity: 0;
+        }
+
+        /* إشعارات النسخ والأخطاء */
+        .notification {
+            position: fixed;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            z-index: 1000;
+            opacity: 0;
+            transition: bottom 0.3s, opacity 0.3s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            min-width: 250px;
+            text-align: center;
+        }
+
+        .notification.show {
+            bottom: 20px;
+            opacity: 1;
+        }
+
+        .notification-success {
+            background-color: var(--primary-color);
+        }
+
+        .notification-error {
+            background-color: var(--warning-color);
+        }
+        
+        /* تحسينات للأجهزة المحمولة */
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+                padding: 20px 15px;
+            }
+            
+            .theme-switch {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            .logo {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .fallback-logo {
+                font-size: 60px;
+            }
+            
+            h2 {
+                font-size: 20px;
+                margin-top: 10px;
+            }
+            
+            .output {
+                padding: 10px;
+                font-size: 16px;
+            }
+        }
+
+        /* تحسينات للأجهزة ذات الشاشات الكبيرة */
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 550px;
+            }
+            
+            .logo {
+                width: 200px;
+                height: 200px;
+            }
+            
+            h2 {
+                font-size: 28px;
+            }
+            
+            input, select, button {
+                font-size: 17px;
+                padding: 14px;
+            }
+        }
+
+        /* تأثير عند التركيز على الحقول */
+        input:focus, select:focus {
+            outline: none;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 128, 0, 0.1);
+        }
+        
+        /* زر نسخ النتيجة */
+        #copyButton {
+            margin-top: 5px;
+            background-color: #575757;
+            transition: background-color 0.2s;
+        }
+        
+        #copyButton:hover {
+            background-color: #333333;
+        }
+        
+        [data-theme="dark"] #copyButton {
+            background-color: #777777;
+        }
+        
+        [data-theme="dark"] #copyButton:hover {
+            background-color: #999999;
         }
     </style>
 </head>
 <body>
 
     <!-- زر تبديل الوضع -->
-    <button class="theme-switch" id="themeSwitch" onclick="toggleTheme()">🌓</button>
+    <button class="theme-switch" id="themeSwitch" aria-label="تبديل الوضع الداكن/الفاتح" onclick="toggleTheme()">🌓</button>
 
-    <!-- شعار الريال السعودي -->
-    <div class="logo"></div>
+    <!-- حاوية الشعار -->
+    <div class="logo-container">
+        <div class="logo" id="riyalLogo">
+            <!-- صورة الريال - ستتغير بين الوضعين الفاتح والداكن -->
+            <img id="riyalSymbol" alt="علامة الريال السعودي" onerror="handleImageError(this)">
+            <span class="fallback-logo">﷼</span>
+        </div>
+    </div>
 
     <div class="container">
         <h2>تحويل الحساب ↔ الآيبان</h2>
@@ -160,7 +385,7 @@
             </select>
 
             <label for="accountNumber">أدخل رقم الحساب (14 رقمًا):</label>
-            <input type="text" id="accountNumber" placeholder="مثال: 12345678901234" maxlength="14">
+            <input type="text" id="accountNumber" placeholder="مثال: 12345678901234" maxlength="14" inputmode="numeric" pattern="[0-9]*">
         </div>
 
         <div id="ibanToAccount" style="display: none;">
@@ -170,79 +395,201 @@
 
         <button onclick="convert()">تحويل</button>
 
-        <p class="output" id="output"></p>
-        <button id="copyButton" style="display: none;" onclick="copyOutput()">نسخ</button>
+        <div class="output" id="output"></div>
+        <button id="copyButton" style="display: none;" onclick="copyOutput()">نسخ النتيجة</button>
 
         <p class="warning">⚠️ الرجاء التأكد من صحة البيانات قبل تنفيذ أي تحويل.</p>
         <p class="footer">© 2025 جميع الحقوق محفوظة | تم التطوير بواسطة علي عبدالله بكري</p>
     </div>
 
     <script>
-        // تبديل الوضع الداكن والفاتح
+        // تعريف روابط الصور وثوابت التطبيق
+        // صورة الوضع الفاتح - شعار الريال بلون أسود على خلفية شفافة
+        const LIGHT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/9/98/Saudi_Riyal_Symbol.svg";
+        // صورة الوضع الداكن - شعار الريال بلون أبيض
+        const DARK_LOGO = "https://upload.wikimedia.org/wikipedia/commons/f/f4/رمز_الريال_سعودي_أبيض_-_Saudi_Riyal_white.jpg";
+        
+        // مفتاح تخزين البيانات المحلية لحفظ تفضيل الوضع
+        const STORAGE_KEY = "ibanConverter.theme";
+
+        // دالة تنفذ عند حدوث خطأ في تحميل الصورة
+        function handleImageError(img) {
+            img.parentElement.classList.add('logo-img-error');
+            console.warn("فشل تحميل صورة الريال، تم استخدام النص الاحتياطي");
+        }
+
+        // تبديل بين الوضع الداكن والفاتح
         function toggleTheme() {
             const body = document.body;
             const currentTheme = body.getAttribute("data-theme");
-            const themeSwitch = document.getElementById("themeSwitch");
+            const riyalSymbol = document.getElementById("riyalSymbol");
+            const logoContainer = document.getElementById("riyalLogo");
 
+            // إزالة فئة الخطأ إن وجدت
+            logoContainer.classList.remove('logo-img-error');
+
+            // التبديل بين الوضعين: إذا كان الوضع الحالي داكناً، نبدله إلى فاتح والعكس
             if (currentTheme === "dark") {
+                // تبديل إلى الوضع الفاتح
                 body.removeAttribute("data-theme");
-                localStorage.setItem("theme", "light");
-                themeSwitch.textContent = "🌓"; // أيقونة الوضع الداكن
+                localStorage.setItem(STORAGE_KEY, "light");
+                console.log("تبديل إلى الوضع الفاتح، تحميل صورة الريال السوداء");
+                riyalSymbol.src = LIGHT_LOGO;
             } else {
+                // تبديل إلى الوضع الداكن
                 body.setAttribute("data-theme", "dark");
-                localStorage.setItem("theme", "dark");
-                themeSwitch.textContent = "🌓"; // أيقونة الوضع الفاتح
+                localStorage.setItem(STORAGE_KEY, "dark");
+                console.log("تبديل إلى الوضع الداكن، تحميل صورة الريال البيضاء");
+                riyalSymbol.src = DARK_LOGO;
             }
         }
 
-        // تحميل الوضع المحفوظ
+        // تحميل الوضع المحفوظ وتطبيقه عند بدء التطبيق
         function loadTheme() {
-            const savedTheme = localStorage.getItem("theme");
-            const themeSwitch = document.getElementById("themeSwitch");
+            const savedTheme = localStorage.getItem(STORAGE_KEY);
+            const riyalSymbol = document.getElementById("riyalSymbol");
 
             if (savedTheme === "dark") {
+                // تطبيق الوضع الداكن وتحميل صورة الريال البيضاء
                 document.body.setAttribute("data-theme", "dark");
-                themeSwitch.textContent = "🌓"; // أيقونة الوضع الفاتح
+                console.log("تطبيق الوضع الداكن المحفوظ، تحميل صورة الريال البيضاء");
+                riyalSymbol.src = DARK_LOGO;
             } else {
-                themeSwitch.textContent = "🌓"; // أيقونة الوضع الداكن
+                // تطبيق الوضع الفاتح (الافتراضي) وتحميل صورة الريال السوداء
+                console.log("تطبيق الوضع الفاتح المحفوظ، تحميل صورة الريال السوداء");
+                riyalSymbol.src = LIGHT_LOGO;
             }
         }
 
-        // تحميل الوضع عند فتح الصفحة
-        loadTheme();
+        // اكتشاف الوضع المفضل لنظام المستخدم
+        function detectPreferredColorScheme() {
+            const riyalSymbol = document.getElementById("riyalSymbol");
+            
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                // تطبيق الوضع الداكن إذا كان مفضلاً في نظام التشغيل
+                document.body.setAttribute("data-theme", "dark");
+                console.log("الوضع الداكن مفضل بواسطة النظام، تحميل صورة الريال البيضاء");
+                riyalSymbol.src = DARK_LOGO;
+            } else {
+                // تطبيق الوضع الفاتح إذا كان مفضلاً في نظام التشغيل
+                console.log("الوضع الفاتح مفضل بواسطة النظام، تحميل صورة الريال السوداء");
+                riyalSymbol.src = LIGHT_LOGO;
+            }
+            
+            // الاستماع لتغييرات الوضع على مستوى النظام
+            try {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                    if (event.matches) {
+                        // تحويل إلى الوضع الداكن عند تغيير إعدادات النظام
+                        document.body.setAttribute("data-theme", "dark");
+                        console.log("تغيير النظام إلى الوضع الداكن، تحميل صورة الريال البيضاء");
+                        riyalSymbol.src = DARK_LOGO;
+                    } else {
+                        // تحويل إلى الوضع الفاتح عند تغيير إعدادات النظام
+                        document.body.removeAttribute("data-theme");
+                        console.log("تغيير النظام إلى الوضع الفاتح، تحميل صورة الريال السوداء");
+                        riyalSymbol.src = LIGHT_LOGO;
+                    }
+                });
+            } catch (e) {
+                console.warn("المتصفح لا يدعم الاستماع لتغييرات الوضع", e);
+            }
+        }
 
         // تبديل الحقول بناءً على نوع التحويل
         function toggleFields() {
-            let conversionType = document.getElementById("conversionType").value;
+            const conversionType = document.getElementById("conversionType").value;
             document.getElementById("accountToIBAN").style.display = (conversionType === "toIBAN") ? "block" : "none";
             document.getElementById("ibanToAccount").style.display = (conversionType === "toAccount") ? "block" : "none";
+            
+            // إعادة تعيين الإخراج
+            document.getElementById("output").innerHTML = "";
+            document.getElementById("copyButton").style.display = "none";
         }
 
-        // حساب رقم التحقق
+        // التحقق من صحة رقم IBAN
+        function validateIBAN(iban) {
+            // التحقق من الطول والتنسيق
+            if (!iban.match(/^SA\d{22}$/)) {
+                return false;
+            }
+            
+            // التحقق من رقم التحقق
+            let rearranged = iban.substring(4) + iban.substring(0, 4);
+            let numericIBAN = "";
+            
+            // تحويل الأحرف إلى أرقام (A=10, B=11, etc.)
+            for (let i = 0; i < rearranged.length; i++) {
+                let char = rearranged[i];
+                if (/[A-Z]/.test(char)) {
+                    numericIBAN += (char.charCodeAt(0) - 55);
+                } else {
+                    numericIBAN += char;
+                }
+            }
+            
+            // محاولة التحقق من الموديولو 97
+            try {
+                let remainder = 0;
+                for (let i = 0; i < numericIBAN.length; i++) {
+                    remainder = (remainder * 10 + parseInt(numericIBAN[i])) % 97;
+                }
+                return remainder === 1;
+            } catch (e) {
+                console.error("خطأ أثناء التحقق من صحة الآيبان:", e);
+                return true; // نفترض أنه صالح في حالة حدوث خطأ في الحساب
+            }
+        }
+
+        // حساب رقم التحقق للآيبان
         function calculateCheckDigits(iban) {
             let rearranged = iban.substring(4) + iban.substring(0, 4);
-            let numericIBAN = rearranged.replace(/[A-Z]/g, match => match.charCodeAt(0) - 55);
-            let mod97 = BigInt(numericIBAN) % 97n;
-            let checkDigits = (98n - mod97).toString().padStart(2, '0');
-            return checkDigits;
+            let numericIBAN = "";
+            
+            // تحويل الأحرف إلى أرقام (A=10, B=11, etc.)
+            for (let i = 0; i < rearranged.length; i++) {
+                let char = rearranged[i];
+                if (/[A-Z]/.test(char)) {
+                    numericIBAN += (char.charCodeAt(0) - 55);
+                } else {
+                    numericIBAN += char;
+                }
+            }
+            
+            // حساب رقم التحقق باستخدام طريقة آمنة
+            try {
+                let remainder = 0;
+                for (let i = 0; i < numericIBAN.length; i++) {
+                    remainder = (remainder * 10 + parseInt(numericIBAN[i])) % 97;
+                }
+                
+                let checkDigits = (98 - remainder).toString().padStart(2, '0');
+                return checkDigits;
+            } catch (e) {
+                console.error("خطأ في حساب رقم التحقق:", e);
+                return "00"; // قيمة افتراضية في حالة حدوث خطأ
+            }
         }
 
-        // إنشاء رقم الآيبان
+        // إنشاء رقم الآيبان من رقم الحساب ورمز البنك
         function generateIBAN(bankCode, accountNumber) {
-            if (accountNumber.length !== 14 || isNaN(accountNumber)) {
+            // التحقق من صحة رقم الحساب
+            if (!/^\d{14}$/.test(accountNumber)) {
                 throw new Error("رقم الحساب غير صالح. يجب أن يكون 14 رقمًا.");
             }
-            let countryCode = "SA";
-            let checkDigits = "00";
-            let ibanWithoutCheckDigits = countryCode + checkDigits + bankCode + accountNumber;
-            let checkDigitsFinal = calculateCheckDigits(ibanWithoutCheckDigits);
-            let finalIBAN = countryCode + checkDigitsFinal + bankCode + accountNumber;
+            
+            const countryCode = "SA";
+            const checkDigits = "00";
+            const ibanWithoutCheckDigits = countryCode + checkDigits + bankCode + accountNumber;
+            const checkDigitsFinal = calculateCheckDigits(ibanWithoutCheckDigits);
+            const finalIBAN = countryCode + checkDigitsFinal + bankCode + accountNumber;
+            
             return finalIBAN;
         }
 
-        // الحصول على اسم البنك
+        // الحصول على اسم البنك من خلال رمزه
         function getBankName(code) {
-            let banks = {
+            const banks = {
                 "80": "البنك الأهلي السعودي",
                 "10": "بنك الرياض",
                 "20": "بنك الجزيرة",
@@ -257,53 +604,167 @@
             return banks[code] || "بنك غير معروف";
         }
 
-        // تنفيذ التحويل
+        // تنفيذ عملية التحويل
         function convert() {
-            let conversionType = document.getElementById("conversionType").value;
-            let output = document.getElementById("output");
-            let copyButton = document.getElementById("copyButton");
+            const conversionType = document.getElementById("conversionType").value;
+            const output = document.getElementById("output");
+            const copyButton = document.getElementById("copyButton");
 
-            if (conversionType === "toIBAN") {
-                let bankCode = document.getElementById("bankCode").value;
-                let accountNumber = document.getElementById("accountNumber").value.trim();
-
-                try {
-                    let iban = generateIBAN(bankCode, accountNumber);
-                    output.innerHTML = `✅ رقم الآيبان (24 حرفًا): <strong>${iban}</strong>`;
-                    output.style.color = "var(--output-color)";
-                    copyButton.style.display = "inline-block";
-                } catch (error) {
-                    output.innerHTML = "❌ " + error.message;
-                    output.style.color = "var(--warning-color)";
-                    copyButton.style.display = "none";
+            try {
+                if (conversionType === "toIBAN") {
+                    convertToIBAN(output, copyButton);
+                } else if (conversionType === "toAccount") {
+                    convertToAccount(output, copyButton);
                 }
-            } 
-            else if (conversionType === "toAccount") {
-                let ibanNumber = document.getElementById("ibanNumber").value.trim();
-
-                if (!ibanNumber.startsWith("SA") || ibanNumber.length !== 24 || isNaN(ibanNumber.substring(2))) {
-                    output.innerHTML = "❌ رقم الآيبان غير صالح.";
-                    output.style.color = "var(--warning-color)";
-                    copyButton.style.display = "none";
-                    return;
-                }
-
-                let bankCode = ibanNumber.substring(4, 6);
-                let accountNumber = ibanNumber.substring(6);
-
-                output.innerHTML = `✅ البنك: <strong>${getBankName(bankCode)}</strong><br>رقم الحساب (14 رقمًا): <strong>${accountNumber}</strong>`;
-                output.style.color = "var(--output-color)";
-                copyButton.style.display = "inline-block";
+            } catch (error) {
+                console.error("خطأ أثناء التحويل:", error);
+                output.innerHTML = `❌ حدث خطأ: ${error.message || 'خطأ غير معروف'}`;
+                output.style.color = "var(--warning-color)";
+                copyButton.style.display = "none";
             }
         }
 
-        // نسخ النتيجة
+        // تحويل رقم الحساب إلى آيبان
+        function convertToIBAN(output, copyButton) {
+            const bankCode = document.getElementById("bankCode").value;
+            const accountNumber = document.getElementById("accountNumber").value.trim();
+
+            if (!/^\d{14}$/.test(accountNumber)) {
+                output.innerHTML = "❌ رقم الحساب غير صالح. يجب إدخال 14 رقمًا فقط.";
+                output.style.color = "var(--warning-color)";
+                copyButton.style.display = "none";
+                return;
+            }
+
+            try {
+                const iban = generateIBAN(bankCode, accountNumber);
+                const formattedIBAN = iban.match(/.{1,4}/g).join(' '); // تنسيق IBAN في مجموعات من 4 أحرف
+                output.innerHTML = `✅ رقم الآيبان (24 حرفًا):<br><strong>${formattedIBAN}</strong>`;
+                output.style.color = "var(--output-color)";
+                copyButton.style.display = "inline-block";
+            } catch (error) {
+                output.innerHTML = "❌ " + error.message;
+                output.style.color = "var(--warning-color)";
+                copyButton.style.display = "none";
+            }
+        }
+
+        // تحويل الآيبان إلى رقم حساب
+        function convertToAccount(output, copyButton) {
+            let ibanNumber = document.getElementById("ibanNumber").value.trim();
+            // إزالة المسافات إن وجدت
+            ibanNumber = ibanNumber.replace(/\s/g, '');
+            
+            if (!ibanNumber.startsWith("SA") || ibanNumber.length !== 24) {
+                output.innerHTML = "❌ رقم الآيبان غير صالح. يجب أن يبدأ بـ SA ويتكون من 24 حرفًا.";
+                output.style.color = "var(--warning-color)";
+                copyButton.style.display = "none";
+                return;
+            }
+
+            if (!validateIBAN(ibanNumber)) {
+                output.innerHTML = "❌ رقم الآيبان غير صحيح. تحقق من الأرقام المدخلة.";
+                output.style.color = "var(--warning-color)";
+                copyButton.style.display = "none";
+                return;
+            }
+
+            const bankCode = ibanNumber.substring(4, 6);
+            const accountNumber = ibanNumber.substring(6);
+            const bankName = getBankName(bankCode);
+
+            output.innerHTML = `✅ البنك: <strong>${bankName}</strong><br>رقم الحساب (14 رقمًا): <strong>${accountNumber}</strong>`;
+            output.style.color = "var(--output-color)";
+            copyButton.style.display = "inline-block";
+        }
+
+        // نسخ النتيجة إلى الحافظة
         function copyOutput() {
-            let text = document.getElementById("output").innerText.replace("✅ ", "").replace(/رقم الآيبان \(24 حرفًا\):|رقم الحساب \(14 رقمًا\):|البنك:/g, "").trim();
+            const text = document.getElementById("output").innerText
+                .replace("✅ ", "")
+                .replace(/رقم الآيبان \(24 حرفًا\):|رقم الحساب \(14 رقمًا\):|البنك:/g, "")
+                .trim();
+            
             navigator.clipboard.writeText(text).then(() => {
-                alert("تم النسخ!");
+                showNotification("تم النسخ بنجاح!");
+            }).catch(err => {
+                showNotification("حدث خطأ أثناء النسخ", true);
+                console.error("خطأ في النسخ:", err);
             });
         }
+        
+        // عرض إشعار للمستخدم
+        function showNotification(message, isError = false) {
+            // إزالة أي إشعارات موجودة
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(note => {
+                document.body.removeChild(note);
+            });
+            
+            // إنشاء إشعار جديد
+            const notification = document.createElement("div");
+            notification.className = "notification " + (isError ? "notification-error" : "notification-success");
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // إظهار الإشعار
+            setTimeout(() => {
+                notification.classList.add("show");
+            }, 10);
+            
+            // إخفاء الإشعار بعد ثلاث ثوانٍ
+            setTimeout(() => {
+                notification.classList.remove("show");
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // تهيئة التطبيق: تعيين الصورة المناسبة ثم إعداد الأحداث
+        function initializeApp() {
+            try {
+                // تحميل الوضع المحفوظ وتطبيق الصورة المناسبة
+                loadTheme();
+            } catch (e) {
+                console.warn("فشل تحميل الوضع من التخزين المحلي:", e);
+                // استخدام تفضيلات النظام إذا كان التخزين المحلي غير متاح
+                detectPreferredColorScheme();
+            }
+            
+            // إعداد مستمعي الأحداث
+            setupEventListeners();
+            
+            // طباعة تأكيد في وحدة التحكم
+            console.log("تم تهيئة التطبيق بنجاح");
+        }
+
+        // إعداد مستمعي الأحداث للتطبيق
+        function setupEventListeners() {
+            // تقييد حقل رقم الحساب للأرقام فقط
+            document.getElementById('accountNumber').addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+            
+            // ضبط تنسيق حقل الآيبان
+            document.getElementById('ibanNumber').addEventListener('input', function(e) {
+                this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            });
+            
+            // تنفيذ التحويل عند الضغط على Enter
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        convert();
+                    }
+                });
+            });
+        }
+
+        // بدء تنفيذ التطبيق عند اكتمال تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 
 </body>
