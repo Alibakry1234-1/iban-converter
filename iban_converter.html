@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحويل رقم الحساب إلى آيبان</title>
+    <title>تحويل الحساب ↔ الآيبان</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,9 +20,9 @@
             display: inline-block;
             text-align: center;
             width: 90%;
-            max-width: 400px;
+            max-width: 450px;
         }
-        input, button {
+        input, select, button {
             font-size: 16px;
             padding: 10px;
             margin: 10px 0;
@@ -38,7 +38,7 @@
         button:hover {
             background-color: #005700;
         }
-        .iban-output {
+        .output {
             font-size: 18px;
             font-weight: bold;
             color: #004080;
@@ -47,10 +47,6 @@
             color: red;
             font-size: 14px;
             margin-top: 10px;
-        }
-        .logo {
-            max-width: 100px;
-            margin: 10px auto;
         }
         .footer {
             font-size: 12px;
@@ -62,80 +58,123 @@
 <body>
 
     <div class="container">
-        <img src="file-J3sjzroFtYsy97m9MA8mp1" alt="شعار الريال السعودي" class="logo">
-        
-        <h2>تحويل رقم الحساب إلى رقم آيبان</h2>
+        <h2>تحويل الحساب ↔ الآيبان</h2>
 
-        <label for="bankCode">اختر البنك:</label>
-        <select id="bankCode">
-            <option value="80">البنك الأهلي السعودي</option>
-            <option value="10">بنك الرياض</option>
-            <option value="20">بنك الجزيرة</option>
-            <option value="30">البنك السعودي للاستثمار</option>
-            <option value="40">البنك السعودي الفرنسي</option>
-            <option value="50">ساب</option>
-            <option value="60">البنك العربي الوطني</option>
-            <option value="70">بنك البلاد</option>
-            <option value="90">بنك الإنماء</option>
-            <option value="85">مصرف الراجحي</option>
+        <label for="conversionType">اختر نوع التحويل:</label>
+        <select id="conversionType" onchange="toggleFields()">
+            <option value="toIBAN">تحويل رقم الحساب إلى آيبان</option>
+            <option value="toAccount">تحويل الآيبان إلى رقم الحساب</option>
         </select>
 
-        <label for="accountNumber">أدخل رقم الحساب (14 رقمًا):</label>
-        <input type="text" id="accountNumber" placeholder="مثال: 12345678901234" maxlength="14">
+        <div id="accountToIBAN">
+            <label for="bankCode">اختر البنك:</label>
+            <select id="bankCode">
+                <option value="80">البنك الأهلي السعودي</option>
+                <option value="10">بنك الرياض</option>
+                <option value="20">بنك الجزيرة</option>
+                <option value="30">البنك السعودي للاستثمار</option>
+                <option value="40">البنك السعودي الفرنسي</option>
+                <option value="50">ساب</option>
+                <option value="60">البنك العربي الوطني</option>
+                <option value="70">بنك البلاد</option>
+                <option value="90">بنك الإنماء</option>
+                <option value="85">مصرف الراجحي</option>
+            </select>
 
-        <button onclick="generateIBAN()">تحويل إلى آيبان</button>
+            <label for="accountNumber">أدخل رقم الحساب (14 رقمًا):</label>
+            <input type="text" id="accountNumber" placeholder="مثال: 12345678901234" maxlength="14">
+        </div>
 
-        <p class="iban-output" id="ibanOutput"></p>
-        <button id="copyButton" style="display: none;" onclick="copyIBAN()">نسخ الآيبان</button>
+        <div id="ibanToAccount" style="display: none;">
+            <label for="ibanNumber">أدخل رقم الآيبان:</label>
+            <input type="text" id="ibanNumber" placeholder="مثال: SA0380000001234567890123" maxlength="24">
+        </div>
 
-        <p class="warning">⚠️ الرجاء التأكد من اسم المستلم قبل إتمام الحوالة.</p>
+        <button onclick="convert()">تحويل</button>
+
+        <p class="output" id="output"></p>
+        <button id="copyButton" style="display: none;" onclick="copyOutput()">نسخ</button>
+
+        <p class="warning">⚠️ الرجاء التأكد من صحة البيانات قبل تنفيذ أي تحويل.</p>
         <p class="footer">جميع الحقوق محفوظة للمبرمج: علي عبدالله بكري</p>
     </div>
 
     <script>
-        function generateIBAN() {
-            let bankCode = document.getElementById("bankCode").value;
-            let accountNumber = document.getElementById("accountNumber").value.trim();
-            let ibanOutput = document.getElementById("ibanOutput");
-            let copyButton = document.getElementById("copyButton");
-
-            // تحقق من طول الحساب
-            if (accountNumber.length !== 14 || isNaN(accountNumber)) {
-                ibanOutput.innerHTML = "❌ رقم الحساب غير صالح. يجب أن يكون 14 رقمًا.";
-                ibanOutput.style.color = "red";
-                copyButton.style.display = "none";
-                return;
-            }
-
-            // إنشاء رقم الآيبان
-            let countryCode = "SA"; // رمز السعودية
-            let checkDigits = "00"; // يتم احتسابه لاحقًا ولكن نتركه 00 مؤقتًا
-            let iban = countryCode + checkDigits + bankCode + accountNumber;
-
-            // تحويل الحروف إلى أرقام حسب معايير IBAN
-            let numericIBAN = iban.replace(/[A-Z]/g, function (match) {
-                return match.charCodeAt(0) - 55;
-            });
-
-            // حساب رقم التحقق (Check Digits)
-            let mod97 = BigInt(numericIBAN) % 97n;
-            let checkDigitsFinal = (98n - mod97).toString().padStart(2, '0');
-
-            // الرقم النهائي
-            let finalIBAN = countryCode + checkDigitsFinal + bankCode + accountNumber;
-
-            // عرض النتيجة
-            ibanOutput.innerHTML = "✅ رقم الآيبان: " + finalIBAN;
-            ibanOutput.style.color = "#004080";
-            copyButton.style.display = "inline-block";
+        function toggleFields() {
+            let conversionType = document.getElementById("conversionType").value;
+            document.getElementById("accountToIBAN").style.display = (conversionType === "toIBAN") ? "block" : "none";
+            document.getElementById("ibanToAccount").style.display = (conversionType === "toAccount") ? "block" : "none";
         }
 
-        function copyIBAN() {
-            let ibanOutput = document.getElementById("ibanOutput").innerText.replace("✅ رقم الآيبان: ", "");
-            navigator.clipboard.writeText(ibanOutput).then(() => {
-                alert("تم نسخ رقم الآيبان!");
-            }).catch(err => {
-                console.error("فشل النسخ:", err);
+        function convert() {
+            let conversionType = document.getElementById("conversionType").value;
+            let output = document.getElementById("output");
+            let copyButton = document.getElementById("copyButton");
+
+            if (conversionType === "toIBAN") {
+                let bankCode = document.getElementById("bankCode").value;
+                let accountNumber = document.getElementById("accountNumber").value.trim();
+
+                if (accountNumber.length !== 14 || isNaN(accountNumber)) {
+                    output.innerHTML = "❌ رقم الحساب غير صالح. يجب أن يكون 14 رقمًا.";
+                    output.style.color = "red";
+                    copyButton.style.display = "none";
+                    return;
+                }
+
+                let countryCode = "SA";
+                let checkDigits = "00"; // سيتم حسابه لاحقًا
+                let iban = countryCode + checkDigits + bankCode + accountNumber;
+
+                let numericIBAN = iban.replace(/[A-Z]/g, match => match.charCodeAt(0) - 55);
+                let mod97 = BigInt(numericIBAN) % 97n;
+                let checkDigitsFinal = (98n - mod97).toString().padStart(2, '0');
+
+                let finalIBAN = countryCode + checkDigitsFinal + bankCode + accountNumber;
+
+                output.innerHTML = "✅ رقم الآيبان: " + finalIBAN;
+                output.style.color = "#004080";
+                copyButton.style.display = "inline-block";
+            } 
+            else if (conversionType === "toAccount") {
+                let ibanNumber = document.getElementById("ibanNumber").value.trim();
+
+                if (!ibanNumber.startsWith("SA") || ibanNumber.length !== 24 || isNaN(ibanNumber.substring(2))) {
+                    output.innerHTML = "❌ رقم الآيبان غير صالح.";
+                    output.style.color = "red";
+                    copyButton.style.display = "none";
+                    return;
+                }
+
+                let bankCode = ibanNumber.substring(4, 6);
+                let accountNumber = ibanNumber.substring(6);
+
+                output.innerHTML = `✅ البنك: ${getBankName(bankCode)}<br>رقم الحساب: ${accountNumber}`;
+                output.style.color = "#004080";
+                copyButton.style.display = "inline-block";
+            }
+        }
+
+        function getBankName(code) {
+            let banks = {
+                "80": "البنك الأهلي السعودي",
+                "10": "بنك الرياض",
+                "20": "بنك الجزيرة",
+                "30": "البنك السعودي للاستثمار",
+                "40": "البنك السعودي الفرنسي",
+                "50": "ساب",
+                "60": "البنك العربي الوطني",
+                "70": "بنك البلاد",
+                "90": "بنك الإنماء",
+                "85": "مصرف الراجحي"
+            };
+            return banks[code] || "بنك غير معروف";
+        }
+
+        function copyOutput() {
+            let text = document.getElementById("output").innerText.replace("✅ ", "");
+            navigator.clipboard.writeText(text).then(() => {
+                alert("تم النسخ!");
             });
         }
     </script>
