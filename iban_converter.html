@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحويل بين رقم الحساب وIBAN</title>
+    <title>تحويل بين رقم الحساب و IBAN</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -59,6 +59,18 @@
             margin: 20px auto;
             width: 100px;
         }
+        .footer {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #555;
+        }
+        .copy-btn {
+            background-color: #2ecc71;
+            margin-right: 10px;
+        }
+        .copy-btn:hover {
+            background-color: #27ae60;
+        }
     </style>
 </head>
 <body>
@@ -66,13 +78,12 @@
     <!-- شعار الريال السعودي الجديد -->
     <img src="shaar-riyal.png" alt="شعار الريال السعودي الجديد" class="logo">
 
-    <h1>تحويل بين رقم الحساب وIBAN</h1>
+    <h1>تحويل بين رقم الحساب و IBAN</h1>
 
     <div class="container">
         <div>
             <select id="bankSelect">
                 <option value="">اختر البنك</option>
-                <!-- سيتم تعبئة الخيارات بواسطة JavaScript -->
             </select>
             <input type="text" id="accountInput" placeholder="أدخل رقم الحساب">
             <button onclick="accountToIban()">تحويل إلى IBAN</button>
@@ -89,8 +100,12 @@
         ⚠️ يرجى التأكد من اسم المستلم قبل إتمام الحوالة. هذه الأداة تساعد في الحصول على رقم الحساب أو الآيبان ولكن لا تؤكد صحته.
     </div>
 
+    <!-- الحقوق المحفوظة -->
+    <div class="footer">
+        كل الحقوق محفوظة للمبرمج: <b>علي عبدالله بكري</b> © 2025
+    </div>
+
     <script>
-        // قائمة البنوك مع الكود، طول الحساب، واسم البنك
         const banks = [
             { code: "10", name: "البنك الأهلي السعودي", accountLength: 14 },
             { code: "20", name: "بنك الرياض", accountLength: 15 },
@@ -106,7 +121,6 @@
             { code: "05", name: "مصرف الإنماء", accountLength: 14 }
         ];
 
-        // تعبئة قائمة البنوك في القائمة المنسدلة
         const bankSelect = document.getElementById('bankSelect');
         banks.forEach(bank => {
             const option = document.createElement('option');
@@ -126,22 +140,18 @@
             }
 
             const bank = banks.find(b => b.code === bankCode);
-
             if (!/^\d+$/.test(account) || account.length !== bank.accountLength) {
                 resultDiv.innerHTML = `<span class="error">رقم الحساب يجب أن يكون ${bank.accountLength} رقمًا لـ ${bank.name}</span>`;
                 return;
             }
 
-            // تعبئة الحساب بالأصفار ليصبح 18 رقمًا
             const paddedAccount = account.padStart(18, '0');
             const bban = bank.code + paddedAccount;
-
-            // حساب أرقام التحقق
             const countryCode = 'SA';
-            const checkDigits = "00"; // يتم الحساب بناءً على طريقة حساب IBAN الأصلية
+            const checkDigits = "00"; // يتم الحساب بناءً على طريقة IBAN
 
             const iban = countryCode + checkDigits + bban;
-            resultDiv.innerHTML = `رقم IBAN: <b>${iban}</b>`;
+            resultDiv.innerHTML = `رقم IBAN: <b>${iban}</b> <button class="copy-btn" onclick="copyToClipboard('${iban}')">نسخ</button>`;
         }
 
         function detectBankFromIban() {
@@ -174,7 +184,12 @@
                 return;
             }
 
-            resultDiv.innerHTML = `رقم الحساب: <b>${accountNumber}</b> (بنك: ${bank.name})`;
+            resultDiv.innerHTML = `رقم الحساب: <b>${accountNumber}</b> (بنك: ${bank.name}) <button class="copy-btn" onclick="copyToClipboard('${accountNumber}')">نسخ</button>`;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            alert("تم النسخ!");
         }
     </script>
 
